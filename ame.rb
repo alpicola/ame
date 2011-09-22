@@ -1,15 +1,16 @@
 require 'open-uri'
+require 'active_support/time'
 
 get '/' do
   if params[:latitude] && params[:longtitude]
     url = 'http://tokyo-ame.jwa.or.jp/mesh/100/%s.gif' %
-      Time.at((Time.now - 30).to_i / 300 * 300).strftime('%Y%m%d%H%M')
+      Time.at((Time.now - 30).to_i / 300 * 300).in_time_zone('Tokyo').strftime('%Y%m%d%H%M')
     intensity = -1
     x = (params[:longtitude].to_f - 138.4) / 2.14
     y = (36.23 - params[:latitude].to_f) / 1.13
 
     if [x, y].all? {|n| (0...1).include? n }
-      image = Magick::Image.read(open(url).to_path).first
+      image = Magick::Image.from_blob(URI.parse(url).read).first
       x = (x * image.columns).to_i
       y = (y * image.rows).to_i
       pixel = image.pixel_color(x, y)
