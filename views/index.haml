@@ -1,0 +1,32 @@
+!!! 5
+%html
+  %head
+    %meta(charset="utf-8")
+    %title ame
+  %body
+    %h1 Rainfall Intensity around Tokyo
+    %form(method="get" action="/intensity")
+      %dl
+        %dt
+          %label(for="latitude")latitude:
+        %dd
+          %input(type="text" size="20" id="latitude"name="latitude" value="35.685396")
+        %dt
+          %label(for="longitude")longitude:
+        %dd
+          %input(type="text" size="20" id="longitude" name="longitude" value="139.753089")
+      %input(type="button" value="set current location" style="display: none")
+      %input(type="submit" value="get intensity (0~8)")
+    :javascript
+      window.onload = function() {
+          if (navigator.geolocation) {
+              var button = document.querySelector('input[type="button"]');
+              button.style.display = 'inline';
+              button.addEventListener('click', function() {
+                  navigator.geolocation.getCurrentPosition(function(position) {
+                      document.getElementById('latitude').value = position.coords.latitude;
+                      document.getElementById('longitude').value = position.coords.longitude;
+                  });
+              });
+          }
+      };

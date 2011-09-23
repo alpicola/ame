@@ -1,12 +1,22 @@
-require 'open-uri'
+require 'open-uri/cached'
 require 'active_support/time'
 
+class << OpenURI::Cache
+  attr_accessor :cache_path
+end
+OpenURI::Cache.cache_path = './tmp'
+
 get '/' do
-  if params[:latitude] && params[:longtitude]
-    url = 'http://tokyo-ame.jwa.or.jp/mesh/100/%s.gif' %
-      Time.at((Time.now - 30).to_i / 300 * 300).in_time_zone('Tokyo').strftime('%Y%m%d%H%M')
-    intensity = -1
-    x = (params[:longtitude].to_f - 138.4) / 2.14
+  haml :index
+end
+
+get '/intensity' do
+  url = 'http://tokyo-ame.jwa.or.jp/mesh/100/%s.gif' %
+    Time.at((Time.now - 30).to_i / 300 * 300).in_time_zone('Tokyo').strftime('%Y%m%d%H%M')
+  intensity = -1
+
+  if params[:latitude] && params[:longitude]
+    x = (params[:longitude].to_f - 138.4) / 2.14
     y = (36.23 - params[:latitude].to_f) / 1.13
 
     if [x, y].all? {|n| (0...1).include? n }
@@ -24,14 +34,8 @@ get '/' do
         intensity = 0
       end
     end
-
-    content_type 'text/plain'
-    intensity.to_s
-  else
-    <<-HTML.gsub(/^\s*/, '')
-    <title>ame</title>
-    <h1>Rainfall Intensity around Tokyo</h1>
-    <p>http://ame.heroku.com/?latitude=xxx&longtitude=xxx</p>
-    HTML
   end
+
+  content_type 'text/plain'
+  intensity.to_s
 end
