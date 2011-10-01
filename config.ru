@@ -5,5 +5,5 @@ require 'bundler'
 
 Bundler.require
 
-require './ame.rb'
+require './app.rb'
 run Sinatra::Application
